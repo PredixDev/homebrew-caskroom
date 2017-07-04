@@ -56,8 +56,22 @@ cask 'android-sdk' do
   binary "#{staged_path}/tools/mksdcard"
   binary "#{staged_path}/tools/monitor"
 
+  proxy_env = ENV['HTTP_PROXY'] || ENV['http_proxy']
+  proxy_parts = /http:\/\/(.*):(\d*)/i.match(proxy_env)
+
+  unless proxy_parts === nil || proxy_parts[1] == nil || proxy_parts[2] == nil
+    proxy_host = proxy_parts[1]
+    proxy_port = proxy_parts[2]
+  end
+
   preflight do
-    system_command "#{staged_path}/tools/bin/sdkmanager", args: ['tools', 'platform-tools', "build-tools;#{build_tools_version}"], input: 'y'
+    unless proxy_host == nil
+      args = ['tools', 'platform-tools', "build-tools;#{build_tools_version}", '--proxy=http', "--proxy_host=#{proxy_host}", "--proxy_port=#{proxy_port}"]
+    else
+      args = ['tools', 'platform-tools', "build-tools;#{build_tools_version}"]
+    end
+
+    system_command "#{staged_path}/tools/bin/sdkmanager", args: args, input: 'y'
   end
 
   postflight do
@@ -71,6 +85,11 @@ cask 'android-sdk' do
   caveats <<-EOS.undent
     We will install android-sdk-tools, platform-tools, and build-tools for you.
     You can control android sdk packages via the sdkmanager command.
+
+    We are using following proxy configuration:
+      proxy_host: #{proxy_host || 'none'}
+      proxy_port: #{proxy_port || 'none'}
+
     You may want to add to your profile:
       'export ANDROID_SDK_ROOT=#{HOMEBREW_PREFIX}/share/android-sdk'
 
