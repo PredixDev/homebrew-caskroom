@@ -1,3 +1,4 @@
+require 'openssl'
 cert_store = OpenSSL::X509::Store.new
 cert_store.set_default_paths
 cask 'android-sdk' do
