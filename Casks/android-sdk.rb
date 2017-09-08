@@ -69,7 +69,7 @@ cask 'android-sdk' do
 
   preflight do
     unless proxy_host == nil
-      args = ['tools', 'platform-tools', "build-tools;#{build_tools_version}", ' --no_https --proxy=http', "--proxy_host=#{proxy_host}", "--proxy_port=#{proxy_port}"]
+      args = ['--no_https', '--proxy=http', "--proxy_host=#{proxy_host}", "--proxy_port=#{proxy_port}", 'tools', 'platform-tools', "build-tools;#{build_tools_version}"]
     else
       args = ['tools', 'platform-tools', "build-tools;#{build_tools_version}"]
     end
